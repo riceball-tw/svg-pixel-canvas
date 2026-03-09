@@ -106,7 +106,36 @@ const builtInGallery: GalleryItem[] = builtInGallerySources.map((item) => {
 
 const savedGallery = ref<GalleryItem[]>([]);
 const selectedGalleryId = ref<string>(builtInGallery[0]?.id ?? '');
+
+// Track the original snapshot to detect unsaved changes
+const originalSnapshot = ref<CanvasSnapshot | null>(null);
+
 const galleryItems = computed(() => [...builtInGallery, ...savedGallery.value]);
+
+// Check if there are unsaved changes
+const hasUnsavedChanges = computed(() => {
+  if (!originalSnapshot.value) return false;
+  
+  const current = createSnapshot();
+  const original = originalSnapshot.value;
+  
+  if (current.width !== original.width || current.height !== original.height) {
+    return true;
+  }
+  
+  if (current.pixels.length !== original.pixels.length) {
+    return true;
+  }
+  
+  const originalMap = new Map(original.pixels);
+  for (const [key, color] of current.pixels) {
+    if (originalMap.get(key) !== color) {
+      return true;
+    }
+  }
+  
+  return false;
+});
 
 // Initialize/Reset grid
 const resetGrid = () => {
@@ -119,10 +148,18 @@ const createSnapshot = (): CanvasSnapshot => ({
   pixels: Array.from(pixels.value.entries()),
 });
 
-const applySnapshot = (snapshot: CanvasSnapshot) => {
+const applySnapshot = (snapshot: CanvasSnapshot, setOriginal = false) => {
   width.value = snapshot.width;
   height.value = snapshot.height;
   pixels.value = new Map(snapshot.pixels);
+  
+  if (setOriginal) {
+    originalSnapshot.value = {
+      width: snapshot.width,
+      height: snapshot.height,
+      pixels: Array.from(pixels.value.entries()),
+    };
+  }
 };
 
 const persistSavedGallery = () => {
@@ -186,6 +223,12 @@ const loadSavedGallery = () => {
 
 loadSavedGallery();
 
+// Initialize original snapshot with the first gallery item
+const initialItem = builtInGallery[0];
+if (initialItem) {
+  applySnapshot(parseSvgSnapshot(initialItem.svg), true);
+}
+
 // Watch for size changes to optionally clear out-of-bounds pixels
 watch([width, height], ([newWidth, newHeight]) => {
   const newPixels = new Map<string, string>();
@@ -237,8 +280,14 @@ const clearCanvas = () => {
 };
 
 const loadGalleryItem = (item: GalleryItem) => {
+  // Check for unsaved changes before switching
+  if (hasUnsavedChanges.value) {
+    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to switch?');
+    if (!confirmed) return;
+  }
+  
   selectedGalleryId.value = item.id;
-  applySnapshot(parseSvgSnapshot(item.svg));
+  applySnapshot(parseSvgSnapshot(item.svg), true);
 };
 
 const saveCurrentToGallery = () => {
@@ -257,6 +306,9 @@ const saveCurrentToGallery = () => {
   savedGallery.value = [snapshot, ...savedGallery.value];
   selectedGalleryId.value = snapshot.id;
   persistSavedGallery();
+  
+  // Mark current state as saved (no more unsaved changes)
+  originalSnapshot.value = createSnapshot();
 };
 
 const removeGalleryItem = (itemId: string) => {
