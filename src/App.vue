@@ -97,22 +97,24 @@ const downloadSVG = () => {
 <template>
   <div class="app-container" @pointerup="handlePointerUp" @pointerleave="handlePointerUp">
     <header class="header">
-      <h1>SVG Pixel Canvas</h1>
-      <p>Create beautiful pixel art and export as SVG</p>
+      <h1><i class="nes-icon star is-medium"></i> SVG Pixel Canvas</h1>
+      <p>Create beautiful pixel art and export as SVG!</p>
     </header>
 
     <main class="main-content">
-      <aside class="controls">
+      <aside class="controls nes-container with-title">
+        <p class="title">Controls</p>
+        
         <div class="control-group">
           <label>Dimensions</label>
           <div class="dimensions-inputs">
             <div class="input-wrap">
               <span>W</span>
-              <input type="number" v-model.number="width" min="1" max="128" />
+              <input type="number" class="nes-input" v-model.number="width" min="1" max="128" />
             </div>
             <div class="input-wrap">
               <span>H</span>
-              <input type="number" v-model.number="height" min="1" max="128" />
+              <input type="number" class="nes-input" v-model.number="height" min="1" max="128" />
             </div>
           </div>
         </div>
@@ -121,37 +123,37 @@ const downloadSVG = () => {
           <label>Tools</label>
           <div class="tools">
             <button 
-              :class="['tool-btn', { active: currentTool === 'draw' }]" 
+              :class="['nes-btn', currentTool === 'draw' ? 'is-primary' : '']" 
               @click="currentTool = 'draw'"
             >
-              ✏️ Draw
+              Draw
             </button>
             <button 
-              :class="['tool-btn', { active: currentTool === 'erase' }]" 
+              :class="['nes-btn', currentTool === 'erase' ? 'is-error' : '']" 
               @click="currentTool = 'erase'"
             >
-              🧹 Erase
+              Erase
             </button>
           </div>
         </div>
 
         <div class="control-group">
           <label>Color</label>
-          <input type="color" v-model="currentColor" class="color-picker" />
+          <input type="color" v-model="currentColor" class="nes-input color-picker" />
         </div>
 
         <div class="actions">
-          <button class="action-btn clear-btn" @click="clearCanvas">
-            Clear Canvas
+          <button class="nes-btn is-warning clear-btn" @click="clearCanvas">
+            Clear
           </button>
-          <button class="action-btn download-btn" @click="downloadSVG">
-            📥 Export SVG
+          <button class="nes-btn is-success download-btn" @click="downloadSVG">
+            Export SVG
           </button>
         </div>
       </aside>
 
       <section class="canvas-section">
-        <div class="canvas-wrapper">
+        <div class="canvas-wrapper nes-container is-rounded">
           <div 
             class="pixel-grid" 
             :style="{ 
@@ -174,8 +176,8 @@ const downloadSVG = () => {
           </div>
         </div>
         
-        <div class="preview-section">
-          <h3>SVG Preview</h3>
+        <div class="preview-section nes-container with-title">
+          <p class="title">SVG Preview</p>
           <div class="svg-preview-container" v-html="svgData"></div>
         </div>
       </section>
@@ -184,27 +186,10 @@ const downloadSVG = () => {
 </template>
 
 <style>
-:root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --bg: #0f172a;
-  --panel-bg: #1e293b;
-  --border: #334155;
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --grid-line: rgba(255, 255, 255, 0.05);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* Reset modern styling defaults */
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: #f0f0f0;
+  color: #212529;
   min-height: 100vh;
 }
 
@@ -217,18 +202,25 @@ body {
   gap: 2rem;
 }
 
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
 .header h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(to right, #818cf8, #c084fc);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .header p {
-  color: var(--text-muted);
+  color: #767676;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .main-content {
@@ -238,15 +230,12 @@ body {
 }
 
 .controls {
-  background: var(--panel-bg);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  width: 280px;
+  gap: 2rem;
+  width: 320px;
   flex-shrink: 0;
+  background-color: white;
 }
 
 .control-group {
@@ -256,133 +245,59 @@ body {
 }
 
 .control-group label {
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .dimensions-inputs {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .input-wrap {
   display: flex;
   align-items: center;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 0 0.5rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
 .input-wrap span {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  margin-right: 0.25rem;
+  font-size: 0.8rem;
 }
 
 .input-wrap input {
-  background: transparent;
-  border: none;
-  color: var(--text);
   width: 100%;
   padding: 0.5rem;
-  outline: none;
-  font-family: inherit;
+  font-size: 0.8rem;
 }
 
 .tools {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-.tool-btn {
+.tools .nes-btn {
   flex: 1;
-  padding: 0.75rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.tool-btn:hover {
-  border-color: var(--primary);
-}
-
-.tool-btn.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
+  font-size: 0.8rem;
+  padding: 0.5rem;
 }
 
 .color-picker {
-  width: 100%;
-  height: 48px;
-  padding: 0;
-  border: none;
-  border-radius: 0.5rem;
+  height: 60px;
+  padding: 0.5rem;
   cursor: pointer;
-  background: transparent;
-}
-
-.color-picker::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.color-picker::-webkit-color-swatch {
-  border: 2px solid var(--border);
-  border-radius: 0.5rem;
 }
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-top: 1rem;
 }
 
-.action-btn {
-  padding: 0.875rem;
-  border-radius: 0.5rem;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.download-btn {
-  background: var(--primary);
-  color: white;
-}
-
-.download-btn:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.clear-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: #ef4444;
-}
-
-.clear-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
+.actions .nes-btn {
+  font-size: 0.8rem;
+  width: 100%;
 }
 
 .canvas-section {
@@ -394,10 +309,8 @@ body {
 }
 
 .canvas-wrapper {
-  background: var(--panel-bg);
+  background-color: white;
   padding: 2rem;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,68 +319,56 @@ body {
 
 .pixel-grid {
   display: grid;
-  background-color: var(--bg);
-  border: 1px solid var(--border);
+  background-color: white;
+  border: 4px solid #212529; /* Chunky outer border */
   width: 100%;
-  max-width: 600px; /* Adjust max width as needed */
+  max-width: 600px;
   user-select: none;
   touch-action: none;
-  /* Checkerboard pattern for transparent background */
+  /* Chunky 8-bit checkerboard pattern for transparent background */
   background-image: 
-    linear-gradient(45deg, var(--panel-bg) 25%, transparent 25%), 
-    linear-gradient(-45deg, var(--panel-bg) 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, var(--panel-bg) 75%), 
-    linear-gradient(-45deg, transparent 75%, var(--panel-bg) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    linear-gradient(45deg, #e0e0e0 25%, transparent 25%), 
+    linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #e0e0e0 75%), 
+    linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
 }
 
 .pixel-cell {
   width: 100%;
   height: 100%;
-  border-right: 1px solid var(--grid-line);
-  border-bottom: 1px solid var(--grid-line);
+  border-right: 1px solid rgba(0,0,0,0.1); /* Subtle inner grid */
+  border-bottom: 1px solid rgba(0,0,0,0.1);
   cursor: crosshair;
 }
 
-/* Remove border on right edge */
-/* .pixel-grid > :nth-child(even) {} */
-
 .preview-section {
-  background: var(--panel-bg);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-}
-
-.preview-section h3 {
-  font-size: 1rem;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
+  background-color: white;
 }
 
 .svg-preview-container {
-  background: var(--bg);
-  border-radius: 0.5rem;
+  background-color: white;
   padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
-  /* Same checkerboard for SVG preview if needed */
+  /* Same chunky checkerboard for SVG preview */
   background-image: 
-    linear-gradient(45deg, var(--panel-bg) 25%, transparent 25%), 
-    linear-gradient(-45deg, var(--panel-bg) 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, var(--panel-bg) 75%), 
-    linear-gradient(-45deg, transparent 75%, var(--panel-bg) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    linear-gradient(45deg, #e0e0e0 25%, transparent 25%), 
+    linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #e0e0e0 75%), 
+    linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
+  /* Give it an inset NES feel */
+  box-shadow: inset 4px 4px 0px #000, inset -4px -4px 0px #ccc;
+  border: 4px solid #212529;
 }
 
 .svg-preview-container svg {
   max-width: 200px;
   max-height: 200px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 @media (max-width: 768px) {

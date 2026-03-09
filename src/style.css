@@ -1,0 +1,4 @@
+body {
+  font-family: 'Press Start 2P', cursive;
+  /* Dark space theme to match the retro vibe and NES.css usually handles light backgrounds well, we can stick to dark or light. Let's aim for a classic retro grey or dark. Actually, NES.css defaults to light pixel theme. Let's set a dark grey or black bg if preferred, but we will leave it for App.vue. */
+}
