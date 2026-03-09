@@ -27,6 +27,20 @@ const height = ref(16);
 const currentColor = ref('#000000');
 const isDrawing = ref(false);
 
+// Clamp helper
+const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
+
+// Width/Height with validation
+const canvasWidth = computed({
+  get: () => width.value,
+  set: (val: number) => { width.value = clamp(Number(val) || 1, 1, 128); },
+});
+
+const canvasHeight = computed({
+  get: () => height.value,
+  set: (val: number) => { height.value = clamp(Number(val) || 1, 1, 128); },
+});
+
 // Map of "x,y" to color string
 const pixels = ref<Map<string, string>>(new Map());
 
@@ -289,11 +303,11 @@ const downloadSVG = () => {
           <div class="dimensions-inputs">
             <div class="input-wrap">
               <span>W</span>
-              <input type="number" class="nes-input" v-model.number="width" min="1" max="128" />
+              <input type="number" class="nes-input" v-model.number="canvasWidth" min="1" max="128" />
             </div>
             <div class="input-wrap">
               <span>H</span>
-              <input type="number" class="nes-input" v-model.number="height" min="1" max="128" />
+              <input type="number" class="nes-input" v-model.number="canvasHeight" min="1" max="128" />
             </div>
           </div>
         </div>
