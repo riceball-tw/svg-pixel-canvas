@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { builtInGallerySources } from './galleryPresets';
 
 type PixelEntry = [string, string];
@@ -273,16 +273,82 @@ const paintPixel = (x: number, y: number) => {
   }
 };
 
-const clearCanvas = () => {
-  if (confirm('Are you sure you want to clear the canvas?')) {
+// Dialog System
+const confirmDialog = ref<HTMLDialogElement | null>(null);
+const confirmTitle = ref('');
+const confirmMessage = ref('');
+let confirmResolver: ((value: boolean) => void) | null = null;
+
+const showConfirm = (title: string, message: string): Promise<boolean> => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  return new Promise((resolve) => {
+    confirmResolver = resolve;
+    confirmDialog.value?.showModal();
+  });
+};
+
+const resolveConfirm = (value: boolean) => {
+  if (confirmResolver) {
+    confirmResolver(value);
+    confirmResolver = null;
+  }
+  confirmDialog.value?.close();
+};
+
+const handleConfirmClose = () => {
+  if (confirmResolver) {
+    confirmResolver(false);
+    confirmResolver = null;
+  }
+};
+
+const promptDialog = ref<HTMLDialogElement | null>(null);
+const promptInput = ref<HTMLInputElement | null>(null);
+const promptTitle = ref('');
+const promptMessage = ref('');
+const promptValue = ref('');
+let promptResolver: ((value: string | null) => void) | null = null;
+
+const showPrompt = (title: string, message: string, defaultValue = ''): Promise<string | null> => {
+  promptTitle.value = title;
+  promptMessage.value = message;
+  promptValue.value = defaultValue;
+  return new Promise((resolve) => {
+    promptResolver = resolve;
+    promptDialog.value?.showModal();
+    nextTick(() => {
+      promptInput.value?.focus();
+      promptInput.value?.select();
+    });
+  });
+};
+
+const resolvePrompt = (value: string | null) => {
+  if (promptResolver) {
+    promptResolver(value);
+    promptResolver = null;
+  }
+  promptDialog.value?.close();
+};
+
+const handlePromptClose = () => {
+  if (promptResolver) {
+    promptResolver(null);
+    promptResolver = null;
+  }
+};
+
+const clearCanvas = async () => {
+  if (await showConfirm('Clear Canvas', 'Are you sure you want to clear the canvas?')) {
     resetGrid();
   }
 };
 
-const loadGalleryItem = (item: GalleryItem) => {
+const loadGalleryItem = async (item: GalleryItem) => {
   // Check for unsaved changes before switching
   if (hasUnsavedChanges.value) {
-    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to switch?');
+    const confirmed = await showConfirm('Unsaved Changes', 'You have unsaved changes. Are you sure you want to switch?');
     if (!confirmed) return;
   }
   
@@ -290,8 +356,8 @@ const loadGalleryItem = (item: GalleryItem) => {
   applySnapshot(parseSvgSnapshot(item.svg), true);
 };
 
-const saveCurrentToGallery = () => {
-  const name = window.prompt('Name this canvas snapshot:', `Canvas ${savedGallery.value.length + 1}`);
+const saveCurrentToGallery = async () => {
+  const name = await showPrompt('Save Snapshot', 'Name this canvas snapshot:', `Canvas ${savedGallery.value.length + 1}`);
   if (!name) return;
 
   const snapshot: GalleryItem = {
@@ -476,6 +542,32 @@ if (typeof window !== 'undefined') {
         <i class="nes-icon github"></i> View on GitHub
       </a>
     </footer>
+
+    <!-- Native Dialogs -->
+    <dialog ref="confirmDialog" class="nes-dialog is-rounded" @close="handleConfirmClose">
+      <form method="dialog" @submit.prevent="resolveConfirm(true)">
+        <p class="title">{{ confirmTitle }}</p>
+        <p>{{ confirmMessage }}</p>
+        <menu class="dialog-menu">
+          <button type="button" class="nes-btn" @click.prevent="resolveConfirm(false)">Cancel</button>
+          <button type="submit" class="nes-btn is-primary">Confirm</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog ref="promptDialog" class="nes-dialog is-rounded" @close="handlePromptClose">
+      <form method="dialog" @submit.prevent="resolvePrompt(promptValue)">
+        <p class="title">{{ promptTitle }}</p>
+        <p>{{ promptMessage }}</p>
+        <div class="nes-field">
+          <input type="text" class="nes-input" v-model="promptValue" ref="promptInput" />
+        </div>
+        <menu class="dialog-menu">
+          <button type="button" class="nes-btn" @click.prevent="resolvePrompt(null)">Cancel</button>
+          <button type="submit" class="nes-btn is-primary">OK</button>
+        </menu>
+      </form>
+    </dialog>
   </div>
 </template>
 
@@ -787,5 +879,22 @@ body {
   .controls {
     width: 100%;
   }
+}
+
+.dialog-menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.nes-dialog {
+  min-width: 300px;
+  max-width: 90vw;
+}
+
+.nes-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }
 </style>
