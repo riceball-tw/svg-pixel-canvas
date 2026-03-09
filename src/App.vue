@@ -97,7 +97,7 @@ const downloadSVG = () => {
 <template>
   <div class="app-container" @pointerup="handlePointerUp" @pointerleave="handlePointerUp">
     <header class="header">
-      <h1>Pixel Builder</h1>
+      <h1>SVG Pixel Canvas</h1>
       <p>Create beautiful pixel art and export as SVG</p>
     </header>
 
