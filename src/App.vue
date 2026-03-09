@@ -460,6 +460,13 @@ const downloadSVG = () => {
         </div>
       </section>
     </main>
+
+    <footer class="footer">
+      MIT License
+      <a href="https://github.com/riceball-tw/svg-pixel-canvas" target="_blank" class="github-link">
+        <i class="nes-icon github"></i> View on GitHub
+      </a>
+    </footer>
   </div>
 </template>
 
@@ -487,18 +494,43 @@ body {
 }
 
 .header h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .header p {
   color: #767676;
   font-size: 0.8rem;
   line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #24292e;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 2px solid #24292e;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.github-link:hover {
+  background-color: #24292e;
+  color: white;
 }
 
 .main-content {
