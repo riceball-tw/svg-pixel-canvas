@@ -337,11 +337,20 @@ const downloadSVG = () => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+// Hide header on scroll
+const isScrolled = ref(false);
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 50;
+};
+if (typeof window !== 'undefined') {
+  window.addEventListener('scroll', handleScroll);
+}
 </script>
 
 <template>
   <div class="app-container" @pointerup="handlePointerUp" @pointerleave="handlePointerUp">
-    <header class="header">
+    <header class="header" :class="{ hidden: isScrolled }">
       <h1><i class="nes-icon star is-medium"></i> SVG Pixel Canvas</h1>
       <p>Create beautiful pixel art and export as SVG!</p>
     </header>
@@ -491,6 +500,13 @@ body {
   text-align: center;
   margin-bottom: 2rem;
   margin-top: 2rem;
+  transition: margin-top 0.3s ease, opacity 0.3s ease;
+}
+
+.header.hidden {
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .header h1 {
