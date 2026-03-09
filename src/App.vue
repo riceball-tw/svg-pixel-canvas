@@ -644,6 +644,10 @@ body {
   gap: 0.75rem;
   max-height: 360px;
   overflow-y: auto;
+  /* NES inset panel style */
+  box-shadow: inset 0px 4px 0 #848484, inset -4px -4px 0 #ffffff;
+  background-color: #f8f8f8;
+  padding: 0.5rem;
 }
 
 .gallery-card {
